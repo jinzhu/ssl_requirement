@@ -14,6 +14,9 @@ Example:
   class AccountController < ApplicationController
     ssl_required :signup, :payment
     ssl_allowed :index
+
+    ssl_allowed :all
+    ssl_required :all
     
     def signup
       # Non-SSL access will be redirected to SSL
