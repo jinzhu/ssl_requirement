@@ -34,33 +34,34 @@ module SslRequirement
       write_inheritable_array(:ssl_allowed_actions, actions)
     end
   end
-  
+
   protected
-    # Returns true if the current action is supposed to run as SSL
-    def ssl_required?
-      ssl_required_actions = self.class.read_inheritable_attribute(:ssl_required_actions) || []
-      return true if ssl_required_actions == [:all]
-      ssl_required_actions.include?(action_name.to_sym)
-    end
-    
-    def ssl_allowed?
-      ssl_allowed_actions = self.class.read_inheritable_attribute(:ssl_allowed_actions) || []
-      return true if ssl_allowed_actions == [:all]
-      ssl_allowed_actions.include?(action_name.to_sym)
-    end
+  # Returns true if the current action is supposed to run as SSL
+  def ssl_required?
+    ssl_required_actions = self.class.read_inheritable_attribute(:ssl_required_actions) || []
+    return true if ssl_required_actions == [:all]
+    ssl_required_actions.include?(action_name.to_sym)
+  end
+
+  def ssl_allowed?
+    ssl_allowed_actions = self.class.read_inheritable_attribute(:ssl_allowed_actions) || []
+    return true if ssl_allowed_actions == [:all]
+    ssl_allowed_actions.include?(action_name.to_sym)
+  end
 
   private
-    def ensure_proper_protocol
-      return true if ssl_allowed?
+  def ensure_proper_protocol
+    return true unless request.get?
+    return true if ssl_allowed?
 
-      if ssl_required? && !request.ssl?
-        redirect_to "https://" + request.host + request.request_uri
-        flash.keep
-        return false
-      elsif request.ssl? && !ssl_required?
-        redirect_to "http://" + request.host + request.request_uri
-        flash.keep
-        return false
-      end
+    if ssl_required? && !request.ssl?
+      redirect_to "https://" + request.host + request.request_uri
+      flash.keep
+      return false
+    elsif request.ssl? && !ssl_required?
+      redirect_to "http://" + request.host + request.request_uri
+      flash.keep
+      return false
     end
+  end
 end
