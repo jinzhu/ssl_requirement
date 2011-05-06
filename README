@@ -9,6 +9,11 @@ Example:
 
   class ApplicationController < ActiveRecord::Base
     include SslRequirement
+
+    def skip_ssl_requirement
+      ### would skip ssl requirement if the method return true, the method must be a public method.
+      Rails.env == 'development'
+    end
   end
 
   class AccountController < ApplicationController

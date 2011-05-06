@@ -51,6 +51,7 @@ module SslRequirement
 
   private
   def ensure_proper_protocol
+    return if respond_to?(:skip_ssl_requirement) && skip_ssl_requirement
     return true unless request.get?
     return true if ssl_allowed?
 
